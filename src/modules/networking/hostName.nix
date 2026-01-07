@@ -1,7 +1,10 @@
 { inputs, ... }:
 {
   flake.modules.nixos.xalaynix = 
-  { options, config, lib, ... }: 
+  { options, config, lib, ... }:
+  let
+    cfg = config.xalaynix;
+  in
   {
     options.xalaynix.hostName = lib.mkOption {
       type = lib.types.string;
@@ -12,7 +15,7 @@
     };
 
     config = {
-      networking.hostname = options.xalaynix.hostName;
+      networking.hostname = cfg.hostName;
     };
   };
 }
