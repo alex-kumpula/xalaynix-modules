@@ -15,7 +15,7 @@
     };
 
     config = {
-      networking.hostname = cfg.hostName;
+      networking.hostName = cfg.hostName;
     };
   };
 }
