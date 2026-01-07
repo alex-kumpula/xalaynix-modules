@@ -7,7 +7,7 @@
   in
   {
     options.xalaynix.hostName = lib.mkOption {
-      type = lib.types.string;
+      type = lib.types.str;
       default = "unamed-host";
       description = '' 
         The networking hostname of the system.
