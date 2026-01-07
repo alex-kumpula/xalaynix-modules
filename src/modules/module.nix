@@ -5,7 +5,7 @@
   {
     options.xalaynix = lib.mkOption {
       # The type is an attribute set because it will contain sub-options
-      type = lib.types.attrs;
+      type = lib.types.attrsOf lib.types.unspecified;
       description = ''
         Options for the xalaynix module.
       '';
