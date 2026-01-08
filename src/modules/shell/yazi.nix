@@ -1,6 +1,6 @@
 { inputs, config, ... }:
 {
-  flake.modules.homeManager.yazi = 
+  flake.modules.homeManager.xalaynix = 
     { pkgs, config, lib, ... }:
     {
       programs.yazi = {
