@@ -20,6 +20,24 @@
       # 2. Transform the evaluated options into Markdown
       optionsDoc = pkgs.nixosOptionsDoc {
         inherit (eval) options;
+
+        transformOptions = opt: opt // {
+          declarations = map (decl: 
+            let
+              # Convert the declaration to a string
+              declStr = toString decl;
+              # Convert self (the flake root) to a string
+              selfStr = toString inputs.self;
+            in
+            if lib.hasPrefix selfStr declStr
+            then 
+              # Remove the /nix/store/...-source/ prefix and prepend "."
+              "." + (lib.removePrefix selfStr declStr)
+            else 
+              # If it's from nixpkgs or elsewhere, keep it as is (or hide it)
+              declStr
+          ) opt.declarations;
+        };
       };
     in
       pkgs.stdenv.mkDerivation {
