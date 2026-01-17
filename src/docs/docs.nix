@@ -24,20 +24,34 @@
         transformOptions = opt: opt // {
           declarations = map (decl: 
             let
-              # Convert the declaration to a string
               declStr = toString decl;
-              # Convert self (the flake root) to a string
               selfStr = toString inputs.self;
+              # Change these to your actual GitHub details
+              githubUser = "alex-kumpula";
+              repoName = "xalaynix-modules";
+              # Use 'main' or 'master', or self.rev if you want it pinned to a specific commit
+              branch = "main"; 
             in
             if lib.hasPrefix selfStr declStr
             then 
-              # Remove the /nix/store/...-source/ prefix and prepend "."
-              "." + (lib.removePrefix selfStr declStr)
+              let
+                # Extract the relative path (e.g., /src/modules/audio/pipewire.nix)
+                subPath = lib.removePrefix selfStr declStr;
+                # Clean up the "via option" metadata if it exists
+                pathOnly = lib.head (lib.splitString " via option " subPath);
+                # Build the full URL
+                url = "https://github.com/${githubUser}/${repoName}/blob/${branch}${pathOnly}";
+              in
+              {
+                url = url;
+                name = "." + pathOnly;
+              }
             else 
-              # If it's from nixpkgs or elsewhere, keep it as is (or hide it)
               declStr
           ) opt.declarations;
         };
+
+
       };
     in
       pkgs.stdenv.mkDerivation {
