@@ -1,0 +1,7 @@
+[book]
+title = "Xalaynix Modules Reference"
+authors = ["Alex Kumpula"]
+src = "src"
+
+[output.html]
+search = true

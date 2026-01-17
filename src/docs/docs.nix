@@ -24,19 +24,29 @@
     in
       pkgs.stdenv.mkDerivation {
         name = "xalaynix-manual";
-        src = ./docs; # Ensure you have a 'docs' folder in your repo
+
+        # We use the current directory (src/docs) as the mdBook source
+        src = ./.;
+
         nativeBuildInputs = [ pkgs.mdbook ];
         
         buildPhase = ''
-          mkdir -p src
-          # Inject the generated markdown into your mdBook source
-          cp ${optionsDoc.optionsCommonMark} src/options.md
-          mdbook build
+          # Create a clean build environment
+          mkdir -p build/src
+          
+          # Copy your book config and static content
+          # Assumes book.toml and SUMMARY.md are in src/docs/
+          cp book.toml build/
+          cp -r src/* build/src/ || true
+          
+          # Inject the Nix-generated options
+          cp ${optionsDoc.optionsCommonMark} build/src/options.md
+          
+          cd build
+          mdbook build -d $out
         '';
 
-        installPhase = ''
-          cp -r book $out
-        '';
+        dontInstall = true;
       };
 
     # Optional: Allow 'nix build' to build the docs by default
