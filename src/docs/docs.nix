@@ -6,7 +6,7 @@
       # Adjust 'self.nixosModules.default' to whatever path exports your modules.
       eval = lib.evalModules {
         modules = [
-          inputs.self.modules.nixos 
+          inputs.self.modules.nixos.xalaynix
           {
             # THE FIX: This prevents errors when the config block refers 
             # to options that don't exist in this minimal evaluation.
