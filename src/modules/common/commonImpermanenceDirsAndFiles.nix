@@ -5,34 +5,25 @@
   {
     options.xalaynix.commonPersistentDirectories = lib.mkOption {
       type = lib.types.listOf lib.types.str;
-      default = [];
-      description = ''
-        A list of directories (paths) that should be persisted across reboots 
-        using impermanence, such as /var/log or /etc/nixos.
-      '';
+      description = "A list of directories that should be persisted across reboots.";
+      # Move your list here:
+      default = [
+        "/var/lib/nixos"
+        "/var/lib/systemd/coredump"
+        "/var/lib/systemd/timers"
+        "/var/lib/udisks2"
+        "/var/log"
+        "/home"
+      ];
     };
 
     options.xalaynix.commonPersistentFiles = lib.mkOption {
       type = lib.types.listOf lib.types.str;
-      default = [];
-      description = ''
-        A list of individual files (paths) that should be persisted across reboots, 
-        such as /etc/machine-id.
-      '';
+      description = "A list of individual files that should be persisted across reboots.";
+      # Move your list here:
+      default = [
+        "/etc/machine-id"
+      ];
     };
-
-    config.xalaynix.commonPersistentDirectories = [
-      "/var/lib/nixos"                # To persist NixOS state 
-      "/var/lib/systemd/coredump"     # To persist coredumps 
-      "/var/lib/systemd/timers"       # To persist timer states 
-      "/var/lib/udisks2"              # To persist USB device authorizations
-      "/var/log"                      # To persist logs 
-      "/home"                         # To persist user data 
-    ];
-    
-    config.xalaynix.commonPersistentFiles = [
-      "/etc/machine-id"
-    ];
-    
   };
 }
