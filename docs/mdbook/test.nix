@@ -3,8 +3,7 @@
   perSystem = { config, pkgs, lib, ... }: 
   let
     rawOptionsJSON = inputs.self.lib.mkOptionsJSON {
-      inherit pkgs lib;
-      flakeRoot = inputs.self;
+      inherit pkgs;
       module = lib.evalModules {
         modules = [ inputs.self.modules.nixos.xalaynix { _module.check = false; } ];
       };
@@ -21,7 +20,6 @@
       };
     };
 
-    # 1. Filter the JSON
     filteredJson = inputs.self.lib.filterOptionsJSON {
       inherit pkgs;
       optionsJSON = linkedJson;
@@ -29,7 +27,6 @@
       excludePrefixes = [ "_module" ];
     };
 
-    # 2. Convert the filtered result to Markdown
     optionsMarkdown = inputs.self.lib.optionsToMarkdown {
       inherit pkgs;
       optionsJSON = filteredJson;

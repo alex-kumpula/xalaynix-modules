@@ -2,7 +2,7 @@
 {
   flake.lib = 
   {
-    mkOptionsJSON = { pkgs, lib, module, flakeRoot }: 
+    mkOptionsJSON = { pkgs, module }: 
     let
       optionsDoc = pkgs.nixosOptionsDoc {
         inherit (module) options;
