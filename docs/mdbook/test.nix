@@ -1,6 +1,6 @@
 { inputs, ... }:
 {
-  perSystem = { config, pkgs, lib, ... }: 
+  perSystem = { pkgs, lib, ... }: 
   let
     rawOptionsJSON = inputs.self.lib.mkOptionsJSON {
       inherit pkgs;
@@ -44,9 +44,6 @@
 
         cp book.toml build/
         cp -r src/* build/src/ || true
-
-        cp ${rawOptionsJSON} $out/rawOptions.json
-        cp ${linkedJson} $out/linkedOptions.json
 
         cp ${optionsMarkdown} build/src/options.md
         cd build
