@@ -1,26 +1,40 @@
 { inputs, ... }:
 {
-  perSystem = { config, pkgs, lib, system, ... }: {
-    packages.docs2 = 
-      let 
-        xalaynixLib = inputs.self.lib { inherit lib pkgs; };
-      in
-      xalaynixLib.mkDocs {
-        name = "xalaynix-manual";
-        src = ./.; 
-        modulePrefix = "xalaynix";
-        flakeRoot = inputs.self;
-        githubInfo = {
-          user = "alex-kumpula";
-          repo = "xalaynix-modules";
-          branch = "main";
-        };
-        module = inputs.nixpkgs.lib.evalModules {
-          modules = [ 
-            inputs.self.modules.nixos.xalaynix 
-            { _module.check = false; } 
-          ];
-        };
+  perSystem = { config, pkgs, lib, ... }: 
+  let
+    optionsJSON = inputs.self.lib.mkOptionsJSON {
+      inherit pkgs lib;
+      flakeRoot = inputs.self;
+      module = lib.evalModules {
+        modules = [ inputs.self.modules.nixos.xalaynix { _module.check = false; } ];
       };
+    };
+
+    optionsMarkdown = inputs.self.lib.optionsToMarkdown {
+      inherit pkgs optionsJSON;
+      modulePrefix = "xalaynix";
+      githubInfo = { 
+        user = "alex-kumpula"; 
+        repo = "xalaynix-modules"; 
+        branch = "main"; 
+      };
+    };
+  in
+  {
+    packages.docs3 = pkgs.stdenv.mkDerivation {
+      name = "xalaynix-manual";
+      src = ./.;
+      nativeBuildInputs = [ pkgs.mdbook ];
+
+      buildPhase = ''
+        mkdir -p build/src
+        cp -r ./* build/
+        cp ${optionsMarkdown} build/src/options.md
+        cd build
+        mdbook build -d $out
+      '';
+
+      dontInstall = true;
+    };
   };
 }
