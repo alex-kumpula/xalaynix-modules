@@ -30,6 +30,10 @@
       inherit pkgs;
       optionsJSON = filteredJson;
     };
+
+    # Capture version info
+    # shortRev will be the git hash, or "dirty" if uncommitted
+    version = if (flakeRoot ? shortRev) then flakeRoot.shortRev else "dirty";
   in
   pkgs.stdenv.mkDerivation {
     name = bookName;
@@ -46,6 +50,12 @@
 
       # Inject the generated options
       cp ${optionsMarkdown} build/src/options.md
+
+      # Update Version placeholders in index.md
+      if [ -f build/src/index.md ]; then
+        substituteInPlace build/src/index.md \
+          --replace "{{VERSION}}" "${version}" \
+      fi
       
       cd build
       mdbook build -d $out
