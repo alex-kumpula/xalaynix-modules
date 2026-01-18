@@ -25,20 +25,34 @@
               let
                 rev = inputs.self.rev or "main";
 
-                toLink = decl:
+                toGitDecl = decl:
                   let
-                    cleaned = lib.removePrefix "/nix/store/" decl;
+                    # decl example:
+                    # /nix/store/...-source/src/modules/foo.nix, via option flake.modules.nixos.xalaynix
+
+                    # 1. Drop the ", via option ..." part
+                    pathPart = lib.head (lib.splitString ", via option" decl);
+
+                    # 2. Remove /nix/store/<hash>-source/
+                    cleaned =
+                      lib.removePrefix "/nix/store/" pathPart;
+
                     parts = lib.splitString "/" cleaned;
-                    relPath = lib.concatStringsSep "/" (lib.drop 1 parts);
+
+                    # 3. Drop "<hash>-source"
+                    relPath =
+                      lib.concatStringsSep "/" (lib.drop 1 parts);
                   in
+                    # 4. Replace with clean Markdown link
                     "[${relPath}](https://github.com/you/xalaynix/blob/${rev}/${relPath})";
               in
                 opt // {
-                  declarations = map toLink opt.declarations;
+                  declarations = map toGitDecl opt.declarations;
                 }
             else
               opt
           ) opts;
+
 
 
       
