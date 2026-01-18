@@ -3,86 +3,92 @@
   perSystem = { config, pkgs, lib, ... }: {
     packages.docs = let
 
+      githubUser = "alex-kumpula";
+      githubRepo = "xalaynix-modules";
+      githubBranch = "main";
+      moduleToDocument = "xalaynix";
+
       eval = lib.evalModules {
         modules = [
           inputs.self.modules.nixos.xalaynix
-          {
-            # This prevents errors when the config block refers 
-            # to options that don't exist in this minimal evaluation.
-            _module.check = false;
-          }
+          { _module.check = false; }
         ];
       };
 
       gitHubDeclaration = user: repo: branch: subpath: {
-        url = "https://github.com/${user}/${repo}/blob/${branch}/${subpath}";
-        # Nixvim uses angle brackets here; this is what gets rendered in the md
-        name = "<${subpath}>"; 
+        url  = "https://github.com/${user}/${repo}/blob/${branch}/${subpath}";
+        name = subpath;
       };
 
-      # Transform the evaluated options into Markdown
       optionsDoc = pkgs.nixosOptionsDoc {
         inherit (eval) options;
 
-
-        transformOptions = opt: opt // {
-        declarations = map (decl:
+        transformOptions = opt:
+          if opt ? declarations then
           let
-            # Use inputs.self to get the source path
-            nixvimPath = toString inputs.self;
-            declStr = toString decl;
+            root = toString inputs.self;
+            toGitDecl = decl:
+              let
+                declStr = toString decl;
+                pathPart = lib.head (lib.splitString " via option " declStr);
+                relPath = if lib.hasPrefix root pathPart then
+                  lib.removePrefix "/" (lib.removePrefix root pathPart)
+                else
+                  pathPart;
+              in
+                gitHubDeclaration githubUser githubRepo githubBranch relPath;
           in
-          if lib.hasPrefix nixvimPath declStr then
-            gitHubDeclaration "alex-kumpula" "xalaynix-modules" "main" (
-              # Remove leading slash to match nixvim's subpath logic
-              lib.removePrefix "/" (lib.removePrefix nixvimPath (lib.head (lib.splitString " via option " declStr)))
-            )
-          else
-            decl
-        ) opt.declarations;
+            opt // { declarations = map toGitDecl opt.declarations; }
+        else opt;
       };
 
-
-
-
-      
-      };
-
-      
-
-      
-
-      
     in
-      pkgs.stdenv.mkDerivation {
-        name = "xalaynix-manual";
 
-        # We use the current directory (src/docs) as the mdBook source
-        src = ./.;
+    pkgs.stdenv.mkDerivation {
+      name = "xalaynix-manual";
+      src = ./.;
+      nativeBuildInputs = [ pkgs.mdbook pkgs.jq ];
 
-        nativeBuildInputs = [ pkgs.mdbook ];
-        
-        buildPhase = ''
-          # Create a clean build environment
-          mkdir -p build/src
+      buildPhase = ''
+        mkdir -p build/src
+        mkdir -p $out
+
+        cp book.toml build/
+        cp -r src/* build/src/ || true
+
+        cp ${optionsDoc.optionsJSON}/share/doc/nixos/options.json build/src/options.json
+
+        jq -r '
+          to_entries | 
+          map(select(.key | startswith("${moduleToDocument}"))) | 
+          .[] |
           
-          # Copy your book config and static content
-          # Assumes book.toml and SUMMARY.md are in src/docs/
-          cp book.toml build/
-          cp -r src/* build/src/ || true
-          
-          # Inject the Nix-generated options
-          cp ${optionsDoc.optionsCommonMark} build/src/options.md
-          sed -i -E 's/<([^>]+),>/<\1>/g' build/src/options.md
-          
-          cd build
-          mdbook build -d $out
-        '';
+          # Process the description to clean up NixOS-specific tags
+          (.value.description // "" 
+            | gsub("{var}`(?<v>[^`]+)`"; "`\(.v)`") 
+            | gsub("{var}(?<v>[a-zA-Z0-9_.-]+)"; "`\(.v)`")
+            | gsub("{option}`(?<o>[^`]+)`"; "**\(.o)**")
+          ) as $desc |
 
-        dontInstall = true;
-      };
+          "## \(.key)\n\n" +
+          $desc + "\n\n" +
+          "Type: `\(.value.type)`\n\n" +
+          (if .value.default != null then
+            "Default: `\(if .value.default | type == "object" then .value.default.text else .value.default end)`\n\n"
+          else "" end) +
+          (if (.value.declarations | length > 0) then
+            "Declared by:\n\n" +
+            (.value.declarations | map("- [\(.name | sub(",$"; ""))](\(.url | sub(",$"; "")))") | join("\n")) + "\n\n"
+          else "" end)
+        ' build/src/options.json > build/src/options.md
 
-    # Optional: Allow 'nix build' to build the docs by default
+        cd build
+        mdbook build -d $out
+      '';
+
+      dontInstall = true;
+    };
+
     packages.default = config.packages.docs;
   };
 }
