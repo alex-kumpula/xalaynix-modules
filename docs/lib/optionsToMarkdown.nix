@@ -18,12 +18,11 @@
         --argjson exclusions "$exclusionsJSON" \
         '
         to_entries
-        # Filter 1: Include if the key starts with ANY of the prefixes
-        | map(select(.key as $k | $prefixes | any(startswith($k))))
+        # Filter 1: Keep if the KEY starts with any of the prefixes
+        | map(select(.key as $k | $prefixes | any(. == "" or ($k | startswith(.)))))
         
-        # Filter 2: Exclude if the key starts with ANY of the exclusion prefixes
-        # (Using "all" ensures the key matches NONE of the exclusions)
-        | map(select(.key as $k | $exclusions | all(startswith($k) | not)))
+        # Filter 2: Drop if the KEY starts with any of the exclusions
+        | map(select(.key as $k | $exclusions | all($k | startswith(.) | not)))
         
         | .[]
         | (
