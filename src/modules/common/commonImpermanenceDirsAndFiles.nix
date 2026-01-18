@@ -6,7 +6,6 @@
     options.xalaynix.commonPersistentDirectories = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       description = "A list of directories that should be persisted across reboots.";
-      # Move your list here:
       default = [
         "/var/lib/nixos"
         "/var/lib/systemd/coredump"
@@ -20,7 +19,6 @@
     options.xalaynix.commonPersistentFiles = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       description = "A list of individual files that should be persisted across reboots.";
-      # Move your list here:
       default = [
         "/etc/machine-id"
       ];
