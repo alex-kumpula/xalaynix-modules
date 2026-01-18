@@ -14,50 +14,33 @@
         ];
       };
 
+      gitHubDeclaration = user: repo: branch: subpath: {
+        url = "https://github.com/${user}/${repo}/blob/${branch}/${subpath}";
+        # Nixvim uses angle brackets here; this is what gets rendered in the md
+        name = "<${subpath}>"; 
+      };
+
       # Transform the evaluated options into Markdown
       optionsDoc = pkgs.nixosOptionsDoc {
         inherit (eval) options;
 
 
-        transformOptions = opts:
-  lib.mapAttrs (_: opt:
-    if opt ? declarations then
-      let
-        rev = inputs.self.rev or "main";
-        root = toString inputs.self;
-
-        toGitDecl = decl:
+        transformOptions = opt: opt // {
+        declarations = map (decl:
           let
+            # Use inputs.self to get the source path
+            nixvimPath = toString inputs.self;
             declStr = toString decl;
-
-            # Drop ", via option …"
-            pathPart =
-              lib.head (lib.splitString " via option " declStr);
-
-            # Only rewrite declarations that come from this repo
-            isLocal = lib.hasPrefix root pathPart;
           in
-            if isLocal then
-              let
-                # Make path repo-relative
-                relPath =
-                  lib.removePrefix "/" (
-                    lib.removePrefix root pathPart
-                  );
-              in
-              {
-                name = relPath;
-                url = "https://github.com/alex-kumpula/xalaynix-modules/blob/${rev}/${relPath}";
-              }
-            else
-              decl;
-      in
-        opt // {
-          declarations = map toGitDecl opt.declarations;
-        }
-    else
-      opt
-  ) opts;
+          if lib.hasPrefix nixvimPath declStr then
+            gitHubDeclaration "alex-kumpula" "xalaynix-modules" "main" (
+              # Remove leading slash to match nixvim's subpath logic
+              lib.removePrefix "/" (lib.removePrefix nixvimPath (lib.head (lib.splitString " via option " declStr)))
+            )
+          else
+            decl
+        ) opt.declarations;
+      };
 
 
 
