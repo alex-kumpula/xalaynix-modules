@@ -2,44 +2,29 @@
 {
   flake.lib = 
   {
-    mapOptionsToGithub = { pkgs, lib, optionsJSON, flakeRoot, githubInfo }:
-    let
-      rawOptions = builtins.fromJSON (builtins.readFile optionsJSON);
-      
-      gitHubUrl = subpath: "https://github.com/${githubInfo.user}/${githubInfo.repo}/blob/${githubInfo.branch}/${subpath}";
-
-      transform = name: opt: 
-        if opt ? declarations then
-          opt // {
-            declarations = map (decl:
-              let
-                # 1. Stringify the declaration
-                declStr = toString decl;
-
-                # 2. Extract the path (before " via option")
-                pathPart = lib.head (lib.splitString " via option " declStr);
-                
-                # 3. CLEANING: Remove spaces first, THEN remove the comma
-                # Note: lib.trim removes whitespace from both ends
-                trimmedPath = lib.trim pathPart;
-                cleanPathPart = lib.removeSuffix "," trimmedPath;
-                
-                root = toString flakeRoot;
-                
-                # 4. Convert to relative path
-                relPath = if lib.hasPrefix root cleanPathPart 
-                          then lib.removePrefix "/" (lib.removePrefix root cleanPathPart)
-                          else cleanPathPart;
-              in {
-                name = relPath;
-                url = gitHubUrl relPath;
-              }
-            ) opt.declarations;
-          }
-        else opt;
-
-      mappedOptions = lib.mapAttrs transform rawOptions;
-    in
-    pkgs.writeText "options-mapped.json" (builtins.toJSON mappedOptions);
+    mapOptionsToGithub = { lib, pkgs, optionsJSON, flakeRoot, githubInfo }:
+      let
+        # This identifies the exact /nix/store/...-source string for the current environment
+        storePath = builtins.toString flakeRoot;
+        
+        # Helper to clean a single declaration
+        cleanDeclaration = decl: rec {
+          # Remove the nix store prefix to get the relative path
+          name = lib.removePrefix "${storePath}/" decl;
+          # Construct the GitHub URL
+          url = "https://github.com/${githubInfo.user}/${githubInfo.repo}/blob/${githubInfo.branch}/${name}";
+        };
+      in
+      pkgs.runCommand "linked-options.json" { nativeBuildInputs = [ pkgs.jq ]; } ''
+        jq --argjson decls '${builtins.toJSON (map cleanDeclaration (lib.flatten (lib.mapAttrsToList (n: v: v.declarations) (builtins.fromJSON (builtins.readFile optionsJSON)))))}' \
+        'map_values(. + {
+          declarations: (.declarations | map(
+            . as $d | 
+            # We match the original declaration name against our cleaned list
+            # This is a bit simplified; for high performance, a direct jq sub is better:
+            sub("^/nix/store/[^/]+-source/"; "")
+          ))
+        })' ${optionsJSON} > $out
+      '';
   };
 }
