@@ -46,7 +46,7 @@
         inherit name src;
         nativeBuildInputs = [ pkgs.mdbook pkgs.jq ];
 
-        # We disable phases we don't need
+        # Disable phases we don't need
         dontConfigure = true;
         dontInstall = true;
 
