@@ -38,7 +38,7 @@
   pkgs.stdenv.mkDerivation {
     name = bookName;
     inherit src;
-    nativeBuildInputs = [ pkgs.mdbook ];
+    nativeBuildInputs = [ pkgs.mdbook ]; 
 
     buildPhase = ''
       mkdir -p build/src
