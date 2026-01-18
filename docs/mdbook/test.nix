@@ -25,7 +25,7 @@
       inherit pkgs;
       optionsJSON = linkedJson;
       includePrefixes = [ "" ];
-      excludePrefixes = [ "_module" "xalaynix.bootDevice" ];
+      excludePrefixes = [ "_module" ];
     };
   in
   {
