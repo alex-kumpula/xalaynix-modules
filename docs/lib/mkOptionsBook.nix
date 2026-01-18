@@ -54,7 +54,7 @@
       # Update Version placeholders in index.md
       if [ -f build/src/index.md ]; then
         substituteInPlace build/src/index.md \
-          --replace "{{VERSION}}" "${version}" \
+          --replace "{{VERSION}}" "${version}"
       fi
       
       cd build
