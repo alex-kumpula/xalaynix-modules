@@ -23,30 +23,31 @@
 
         transformOptions = opt: opt // {
           declarations = map (decl: 
-          let
-            declStr = toString decl;
-            selfStr = toString inputs.self;
-            githubUser = "alex-kumpula";
-            repoName = "xalaynix-modules";
-            branch = "main"; 
-          in
-          if lib.hasPrefix selfStr declStr
-          then 
             let
-              # 1. Strip the store path and the " via option " metadata
-              subPath = lib.removePrefix selfStr declStr;
-              pathOnly = lib.head (lib.splitString " via option " subPath);
+              # Use inputs.self for the most accurate path matching
+              selfPath = toString inputs.self;
+              declStr = toString decl;
               
-              # 2. Build the URL
-              url = "https://github.com/${githubUser}/${repoName}/blob/${branch}${pathOnly}";
-              
-              # 3. Return a PLAIN STRING in Markdown format.
-              # This prevents the renderer from treating it as a list item.
+              githubUser = "alex-kumpula";
+              repoName = "xalaynix-modules";
+              branch = "main"; 
             in
+            if lib.hasPrefix selfPath declStr
+            then 
+              let
+                # Clean up the path and strip metadata
+                subPath = lib.removePrefix selfPath declStr;
+                pathOnly = lib.head (lib.splitString " via option " subPath);
+                
+                # Build the exact URL
+                url = "https://github.com/${githubUser}/${repoName}/blob/${branch}${pathOnly}";
+              in
+              # We return a string that looks like Markdown to mdBook, 
+              # but looks like "just text" to the Nix doc generator.
               "[.${pathOnly}](${url})"
-          else 
-            "nixpkgs"
-        ) opt.declarations;
+            else 
+              "nixpkgs"
+          ) opt.declarations;
         };
 
 
