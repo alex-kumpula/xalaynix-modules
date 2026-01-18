@@ -17,7 +17,7 @@
     };
 
     linkedJson = inputs.self.lib.mapOptionsToGithub {
-      inherit lib pkgs flakeRoot githubInfo;
+      inherit pkgs flakeRoot githubInfo;
       optionsJSON = rawOptionsJSON;
     };
 
