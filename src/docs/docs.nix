@@ -24,7 +24,6 @@
         transformOptions = opt: opt // {
           declarations = map (decl: 
             let
-              # Use inputs.self for the most accurate path matching
               selfPath = toString inputs.self;
               declStr = toString decl;
               
@@ -35,16 +34,15 @@
             if lib.hasPrefix selfPath declStr
             then 
               let
-                # Clean up the path and strip metadata
                 subPath = lib.removePrefix selfPath declStr;
                 pathOnly = lib.head (lib.splitString " via option " subPath);
-                
-                # Build the exact URL
                 url = "https://github.com/${githubUser}/${repoName}/blob/${branch}${pathOnly}";
+                
+                # We wrap the Markdown link in a literalExpression 
+                # to stop Nix from prepending <nixpkgs/
+                mdLink = "[.${pathOnly}](${url})";
               in
-              # We return a string that looks like Markdown to mdBook, 
-              # but looks like "just text" to the Nix doc generator.
-              "[.${pathOnly}](${url})"
+              { _type = "literalExpression"; text = mdLink; }
             else 
               "nixpkgs"
           ) opt.declarations;
