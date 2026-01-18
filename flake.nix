@@ -11,7 +11,14 @@
 {
   description = "A collection of various modules you can use in your own Nix configurations.";
 
-  outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } (inputs.import-tree ./src);
+  outputs =
+    inputs:
+    inputs.flake-parts.lib.mkFlake { inherit inputs; } (
+      inputs.import-tree [
+        ./src
+        ./docs
+      ]
+    );
 
   inputs = {
     disko = {
