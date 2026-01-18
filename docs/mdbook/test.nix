@@ -2,12 +2,29 @@
 {
   perSystem = { config, pkgs, lib, ... }: 
   let
-    optionsJSON = inputs.self.lib.mkOptionsJSON {
+    rawOptionsJSON = inputs.self.lib.mkOptionsJSON {
       inherit pkgs lib;
       flakeRoot = inputs.self;
       module = lib.evalModules {
         modules = [ inputs.self.modules.nixos.xalaynix { _module.check = false; } ];
       };
+    };
+
+    linkedJson = inputs.self.lib.mapOptionsToGithub {
+      inherit lib pkgs;
+      optionsJSON = rawOptionsJSON;
+      flakeRoot = inputs.self;
+      githubInfo = { 
+        user = "alex-kumpula"; 
+        repo = "xalaynix-modules"; 
+        branch = "main"; 
+      };
+    };
+
+    optionsMarkdown = inputs.self.lib.optionsToMarkdown {
+      inherit pkgs;
+      optionsJSON = linkedJson;
+      modulePrefix = "xalaynix";
     };
 
     # optionsMarkdown = inputs.self.lib.optionsToMarkdown {
@@ -33,11 +50,12 @@
         cp book.toml build/
         cp -r src/* build/src/ || true
 
-        cp ${optionsJSON} $out/options.json
+        cp ${rawOptionsJSON} $out/rawOptions.json
+        cp ${linkedJson} $out/linkedOptions.json
 
-        # cp ${"optionsMarkdown"} build/src/options.md
-        # cd build
-        # mdbook build -d $out
+        cp ${optionsMarkdown} build/src/options.md
+        cd build
+        mdbook build -d $out
       '';
 
       dontInstall = true;
