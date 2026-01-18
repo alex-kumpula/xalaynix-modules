@@ -21,6 +21,7 @@
 #   };
 # }
 
+
 { ... }:
 {
   flake.lib = {
@@ -28,23 +29,21 @@
       pkgs, 
       optionsJSON, 
       modulePrefix, 
-      excludePrefix ? null # New parameter to filter out specific modules
+      excludePrefix ? "" # Default to empty string for easier jq handling
     }:
-    let
-      # Pass Nix variables into the shell environment to keep the jq script clean
-      env = {
-        inherit modulePrefix excludePrefix;
-        nativeBuildInputs = [ pkgs.jq ];
-      };
-    in
-    pkgs.runCommand "options.md" env ''
-      jq -r '
+    pkgs.runCommand "options.md" { 
+      nativeBuildInputs = [ pkgs.jq ]; 
+    } ''
+      jq -r \
+        --arg prefix "${modulePrefix}" \
+        --arg exclude "${excludePrefix}" \
+        '
         to_entries
         # Filter 1: Include only keys starting with modulePrefix
-        | map(select(.key | startswith($modulePrefix)))
+        | map(select(.key | startswith($prefix)))
         
-        # Filter 2: Exclude keys starting with excludePrefix (if provided)
-        | map(select($excludePrefix == null or (.key | startswith($excludePrefix) | not)))
+        # Filter 2: Exclude keys starting with excludePrefix (only if exclude is not empty)
+        | map(select($exclude == "" or (.key | startswith($exclude) | not)))
         
         | .[]
         | (
