@@ -13,17 +13,20 @@
           opt // {
             declarations = map (decl:
               let
-                # Convert to string and strip the "via option..." suffix
+                # 1. Stringify the declaration
                 declStr = toString decl;
+
+                # 2. Extract the path (before " via option")
                 pathPart = lib.head (lib.splitString " via option " declStr);
                 
-                # CLEANING STEP: Remove trailing commas or spaces
-                # Some Nix versions add a comma during path coercion
-                cleanPathPart = lib.removeSuffix "," (lib.trim lib.removeSuffix " " pathPart);
+                # 3. CLEANING: Remove spaces first, THEN remove the comma
+                # Note: lib.trim removes whitespace from both ends
+                trimmedPath = lib.trim pathPart;
+                cleanPathPart = lib.removeSuffix "," trimmedPath;
                 
                 root = toString flakeRoot;
                 
-                # Convert to relative path
+                # 4. Convert to relative path
                 relPath = if lib.hasPrefix root cleanPathPart 
                           then lib.removePrefix "/" (lib.removePrefix root cleanPathPart)
                           else cleanPathPart;
