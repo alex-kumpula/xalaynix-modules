@@ -25,6 +25,7 @@
       inherit pkgs;
       optionsJSON = linkedJson;
       modulePrefix = "";
+      excludePrefix = "_module";
     };
   in
   {
