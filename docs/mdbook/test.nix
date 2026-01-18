@@ -28,10 +28,13 @@
 
       buildPhase = ''
         mkdir -p build/src
+        mkdir -p $out
+
         cp -r ./* build/
-        cp ${optionsMarkdown} build/src/options.md
-        cd build
-        mdbook build -d $out
+
+        # cp ${optionsMarkdown} build/src/options.md
+        # cd build
+        # mdbook build -d $out
       '';
 
       dontInstall = true;
