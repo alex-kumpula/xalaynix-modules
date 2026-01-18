@@ -20,43 +20,54 @@
 
 
         transformOptions = opts:
-          lib.mapAttrs (_: opt:
-            if opt ? declarations then
+  lib.mapAttrs (_: opt:
+    if opt ? declarations then
+      let
+        rev = inputs.self.rev or "main";
+        root = toString inputs.self;
+
+        toGitDecl = decl:
+          let
+            declStr = toString decl;
+
+            # Drop ", via option …"
+            pathPart =
+              lib.head (lib.splitString " via option " declStr);
+
+            # Only rewrite declarations that come from this repo
+            isLocal = lib.hasPrefix root pathPart;
+          in
+            if isLocal then
               let
-                rev = inputs.self.rev or "main";
-
-                toGitDecl = decl:
-                  let
-                    # decl example:
-                    # /nix/store/...-source/src/modules/foo.nix, via option flake.modules.nixos.xalaynix
-
-                    # 1. Drop the ", via option ..." part
-                    pathPart = lib.head (lib.splitString ", via option" decl);
-
-                    # 2. Remove /nix/store/<hash>-source/
-                    cleaned =
-                      lib.removePrefix "/nix/store/" pathPart;
-
-                    parts = lib.splitString "/" cleaned;
-
-                    # 3. Drop "<hash>-source"
-                    relPath =
-                      lib.concatStringsSep "/" (lib.drop 1 parts);
-                  in
-                    # 4. Replace with clean Markdown link
-                    "[${relPath}](https://github.com/you/xalaynix/blob/${rev}/${relPath})";
+                # Make path repo-relative
+                relPath =
+                  lib.removePrefix "/" (
+                    lib.removePrefix root pathPart
+                  );
               in
-                opt // {
-                  declarations = map toGitDecl opt.declarations;
-                }
+              {
+                name = relPath;
+                url = "https://github.com/alex-kumpula/xalaynix-modules/blob/${rev}/${relPath}";
+              }
             else
-              opt
-          ) opts;
+              decl;
+      in
+        opt // {
+          declarations = map toGitDecl opt.declarations;
+        }
+    else
+      opt
+  ) opts;
+
 
 
 
       
       };
+
+      
+
+      
 
       
     in
