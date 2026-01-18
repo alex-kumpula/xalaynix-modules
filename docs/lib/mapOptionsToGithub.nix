@@ -2,37 +2,41 @@
 {
   flake.lib = 
   {
-    mapOptionsToGithub = { lib, pkgs, optionsJSON, flakeRoot, githubInfo }:
+    mapOptionsToGithub = { pkgs, lib, optionsJSON, flakeRoot, githubInfo }:
     let
-      # Load the JSON data into Nix
       rawOptions = builtins.fromJSON (builtins.readFile optionsJSON);
       
-      # Helper to build the URL
       gitHubUrl = subpath: "https://github.com/${githubInfo.user}/${githubInfo.repo}/blob/${githubInfo.branch}/${subpath}";
 
-      # Logic to transform a single option
       transform = name: opt: 
         if opt ? declarations then
-          let
-            root = toString flakeRoot;
-            cleanDecls = map (decl:
+          opt // {
+            declarations = map (decl:
               let
+                # Convert to string and strip the "via option..." suffix
                 declStr = toString decl;
-                # Extract path and strip NixOS "via option" metadata
                 pathPart = lib.head (lib.splitString " via option " declStr);
-                relPath = lib.removePrefix "/" (lib.removePrefix root pathPart);
+                
+                # CLEANING STEP: Remove trailing commas or spaces
+                # Some Nix versions add a comma during path coercion
+                cleanPathPart = lib.removeSuffix "," (lib.trim lib.removeSuffix " " pathPart);
+                
+                root = toString flakeRoot;
+                
+                # Convert to relative path
+                relPath = if lib.hasPrefix root cleanPathPart 
+                          then lib.removePrefix "/" (lib.removePrefix root cleanPathPart)
+                          else cleanPathPart;
               in {
                 name = relPath;
                 url = gitHubUrl relPath;
               }
             ) opt.declarations;
-          in opt // { declarations = cleanDecls; }
+          }
         else opt;
 
-      # Apply to all options
       mappedOptions = lib.mapAttrs transform rawOptions;
     in
-    # Write it back out to a new JSON file
     pkgs.writeText "options-mapped.json" (builtins.toJSON mappedOptions);
   };
 }

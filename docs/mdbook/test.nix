@@ -26,16 +26,6 @@
       optionsJSON = linkedJson;
       modulePrefix = "xalaynix";
     };
-
-    # optionsMarkdown = inputs.self.lib.optionsToMarkdown {
-    #   inherit pkgs optionsJSON;
-    #   modulePrefix = "xalaynix";
-    #   githubInfo = { 
-    #     user = "alex-kumpula"; 
-    #     repo = "xalaynix-modules"; 
-    #     branch = "main"; 
-    #   };
-    # };
   in
   {
     packages.docs3 = pkgs.stdenv.mkDerivation {
