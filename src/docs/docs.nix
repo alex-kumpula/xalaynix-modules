@@ -23,32 +23,30 @@
 
         transformOptions = opt: opt // {
           declarations = map (decl: 
+          let
+            declStr = toString decl;
+            selfStr = toString inputs.self;
+            githubUser = "alex-kumpula";
+            repoName = "xalaynix-modules";
+            branch = "main"; 
+          in
+          if lib.hasPrefix selfStr declStr
+          then 
             let
-              declStr = toString decl;
-              selfStr = toString inputs.self;
-              # Change these to your actual GitHub details
-              githubUser = "alex-kumpula";
-              repoName = "xalaynix-modules";
-              # Use 'main' or 'master', or self.rev if you want it pinned to a specific commit
-              branch = "main"; 
+              # 1. Strip the store path and the " via option " metadata
+              subPath = lib.removePrefix selfStr declStr;
+              pathOnly = lib.head (lib.splitString " via option " subPath);
+              
+              # 2. Build the URL
+              url = "https://github.com/${githubUser}/${repoName}/blob/${branch}${pathOnly}";
+              
+              # 3. Return a PLAIN STRING in Markdown format.
+              # This prevents the renderer from treating it as a list item.
             in
-            if lib.hasPrefix selfStr declStr
-            then 
-              let
-                # Extract the relative path (e.g., /src/modules/audio/pipewire.nix)
-                subPath = lib.removePrefix selfStr declStr;
-                # Clean up the "via option" metadata if it exists
-                pathOnly = lib.head (lib.splitString " via option " subPath);
-                # Build the full URL
-                url = "https://github.com/${githubUser}/${repoName}/blob/${branch}${pathOnly}";
-              in
-              {
-                url = url;
-                name = "." + pathOnly;
-              }
-            else 
-              declStr
-          ) opt.declarations;
+              "[.${pathOnly}](${url})"
+          else 
+            "nixpkgs"
+        ) opt.declarations;
         };
 
 
