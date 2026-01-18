@@ -24,8 +24,8 @@
     optionsMarkdown = inputs.self.lib.optionsToMarkdown {
       inherit pkgs;
       optionsJSON = linkedJson;
-      modulePrefix = "";
-      excludePrefix = "_module";
+      includePrefixes = [ "xalaynix" ];
+      excludePrefixes = [ "_module" ];
     };
   in
   {
