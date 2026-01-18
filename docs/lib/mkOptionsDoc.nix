@@ -4,7 +4,7 @@
   { lib, pkgs }:
   {
     # The core generator function
-    mkOptionsDoc = 
+    mkDocs = 
       { name
       , src
       , module
