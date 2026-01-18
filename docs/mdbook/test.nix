@@ -21,11 +21,18 @@
       };
     };
 
-    optionsMarkdown = inputs.self.lib.optionsToMarkdown {
+    # 1. Filter the JSON
+    filteredJson = inputs.self.lib.filterOptionsJSON {
       inherit pkgs;
       optionsJSON = linkedJson;
-      includePrefixes = [ "" ];
+      includePrefixes = [ "xalaynix." ];
       excludePrefixes = [ "_module" ];
+    };
+
+    # 2. Convert the filtered result to Markdown
+    optionsMarkdown = inputs.self.lib.optionsToMarkdown {
+      inherit pkgs;
+      optionsJSON = filteredJson;
     };
   in
   {
