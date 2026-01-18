@@ -1,7 +1,7 @@
 { ... }:
 {
   flake.lib = {
-    mapOptionsToGithub = { lib, pkgs, optionsJSON, flakeRoot, githubInfo }:
+    mapOptionsToGithub = { pkgs, optionsJSON, flakeRoot, githubInfo }:
       let
         storePath = builtins.toString flakeRoot;
         baseUrl = "https://github.com/${githubInfo.user}/${githubInfo.repo}/blob/${githubInfo.branch}";
