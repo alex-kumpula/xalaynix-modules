@@ -23,7 +23,7 @@
     filteredJson = inputs.self.lib.filterOptionsJSON {
       inherit pkgs;
       optionsJSON = linkedJson;
-      includePrefixes = [ "xalaynix." ];
+      includePrefixes = [ "xalaynix" ];
       excludePrefixes = [ "_module" ];
     };
 
