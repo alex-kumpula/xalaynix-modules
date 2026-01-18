@@ -4,25 +4,28 @@
     optionsToMarkdown = { 
       pkgs, 
       optionsJSON, 
-      includePrefixes ? [ "" ], # Default to everything
-      excludePrefixes ? [ ]      # Default to nothing
+      includePrefixes ? [ "" ],
+      excludePrefixes ? [ ]
     }:
+    let
+      # Ensure we always have a valid list to pass to toJSON
+      safeIncludes = if includePrefixes == [ ] then [ "" ] else includePrefixes;
+    in
     pkgs.runCommand "options.md" { 
       nativeBuildInputs = [ pkgs.jq ]; 
-      # Safety: if includePrefixes is [], jq any() will fail. 
-      # We ensure it is at least [ "" ] if empty.
-      prefixesJSON = builtins.toJSON (if includePrefixes == [] then [ "" ] else includePrefixes);
-      exclusionsJSON = builtins.toJSON excludePrefixes;
+      # Passing as environment variables for jq to pick up via --argjson
+      pJson = builtins.toJSON safeIncludes;
+      eJson = builtins.toJSON excludePrefixes;
     } ''
       jq -r \
-        --argjson prefixes "$prefixesJSON" \
-        --argjson exclusions "$exclusionsJSON" \
+        --argjson prefixes "$pJson" \
+        --argjson exclusions "$eJson" \
         '
         to_entries
-        # 1. Inclusion Filter: Keep if key starts with ANY prefix
+        # Filter 1: Include (If any prefix matches)
         | map(select(.key as $k | $prefixes | any($k | startswith(.))))
         
-        # 2. Exclusion Filter: Keep ONLY if key starts with NONE of the exclusions
+        # Filter 2: Exclude (If none of the exclusions match)
         | map(select(.key as $k | $exclusions | all($k | startswith(.) | not)))
         
         | .[]
@@ -31,18 +34,10 @@
             | gsub("{var}`(?<v>[^`]+)`"; "`\(.v)`") 
             | gsub("{option}`(?<o>[^`]+)`"; "**\(.o)**")
           ) as $desc
-        | [
-            "## \(.key)",
-            $desc,
-            "**Type:** `\(.value.type)`",
-            (if .value.default != null then 
-              "**Default:** `\(if .value.default | type == "object" then .value.default.text else .value.default end)`" 
-            else empty end),
-            (if (.value.declarations | length > 0) then 
-              "**Declared by:**\n" + (.value.declarations | map("- [\(.name)](\(.url))") | join("\n")) 
-            else empty end)
-          ] 
-        | join("\n\n")
+        | "## \(.key)\n\n" + $desc + "\n\n" +
+          "**Type:** `\(.value.type)`\n\n" +
+          (if .value.default != null then "**Default:** `\(if .value.default | type == "object" then .value.default.text else .value.default end)`\n\n" else "" end) +
+          (if (.value.declarations | length > 0) then "**Declared by:**\n\n" + (.value.declarations | map("- [\(.name)](\(.url))") | join("\n")) + "\n\n" else "" end)
       ' "${optionsJSON}" > $out
     '';
   };
