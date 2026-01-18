@@ -17,6 +17,7 @@
       inputs.import-tree [
         ./src
         ./docs
+        ./flake
       ]
     );
 
