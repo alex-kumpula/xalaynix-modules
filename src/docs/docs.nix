@@ -26,7 +26,6 @@
             let
               selfPath = toString inputs.self;
               declStr = toString decl;
-              
               githubUser = "alex-kumpula";
               repoName = "xalaynix-modules";
               branch = "main"; 
@@ -36,14 +35,17 @@
               let
                 subPath = lib.removePrefix selfPath declStr;
                 pathOnly = lib.head (lib.splitString " via option " subPath);
-                url = "https://github.com/${githubUser}/${repoName}/blob/${branch}${pathOnly}";
-                
-                # We wrap the Markdown link in a literalExpression 
-                # to stop Nix from prepending <nixpkgs/
-                mdLink = "[.${pathOnly}](${url})";
               in
-              { _type = "literalExpression"; text = mdLink; }
+              {
+                # 'name' must be a string. 
+                # By prepending a space or a dot, we stop the renderer 
+                # from thinking this is a Nixpkgs path.
+                name = ".${pathOnly}";
+                url = "https://github.com/${githubUser}/${repoName}/blob/${branch}${pathOnly}";
+              }
             else 
+              # If it's not our file, just return a string 
+              # (the renderer handles strings differently than sets)
               "nixpkgs"
           ) opt.declarations;
         };
