@@ -7,7 +7,7 @@
       in
       xalaynixLib.mkDocs {
         name = "xalaynix-manual";
-        src = ./docs; 
+        src = ./.; 
         modulePrefix = "xalaynix";
         flakeRoot = inputs.self;
         githubInfo = {
