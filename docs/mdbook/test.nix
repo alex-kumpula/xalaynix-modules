@@ -2,7 +2,10 @@
 {
   perSystem = { config, pkgs, lib, system, ... }: {
     packages.docs2 = 
-      inputs.self.lib.mkDocs {
+      let 
+        xalaynixLib = inputs.self.lib { inherit lib pkgs; };
+      in
+      xalaynixLib.mkDocs {
         name = "xalaynix-manual";
         src = ./.; 
         modulePrefix = "xalaynix";
