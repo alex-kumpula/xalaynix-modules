@@ -10,15 +10,15 @@
       };
     };
 
-    optionsMarkdown = inputs.self.lib.optionsToMarkdown {
-      inherit pkgs optionsJSON;
-      modulePrefix = "xalaynix";
-      githubInfo = { 
-        user = "alex-kumpula"; 
-        repo = "xalaynix-modules"; 
-        branch = "main"; 
-      };
-    };
+    # optionsMarkdown = inputs.self.lib.optionsToMarkdown {
+    #   inherit pkgs optionsJSON;
+    #   modulePrefix = "xalaynix";
+    #   githubInfo = { 
+    #     user = "alex-kumpula"; 
+    #     repo = "xalaynix-modules"; 
+    #     branch = "main"; 
+    #   };
+    # };
   in
   {
     packages.docs3 = pkgs.stdenv.mkDerivation {
@@ -33,8 +33,10 @@
         cp book.toml build/
         cp -r src/* build/src/ || true
 
-        cp ${optionsMarkdown} build/src/options.md
-        cd build
+        cp ${optionsJSON.optionsJSON}/share/doc/nixos/options.json build/src/options.json
+
+        # cp ${"optionsMarkdown"} build/src/options.md
+        # cd build
         # mdbook build -d $out
       '';
 
