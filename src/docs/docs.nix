@@ -73,6 +73,7 @@
           
           # Inject the Nix-generated options
           cp ${optionsDoc.optionsCommonMark} build/src/options.md
+          sed -i -E 's/<([^>]+),>/<\1>/g' build/src/options.md
           
           cd build
           mdbook build -d $out
