@@ -35,7 +35,7 @@
 
         cp ${optionsMarkdown} build/src/options.md
         cd build
-        mdbook build -d $out
+        # mdbook build -d $out
       '';
 
       dontInstall = true;
