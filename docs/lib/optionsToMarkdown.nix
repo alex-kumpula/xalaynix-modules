@@ -4,12 +4,11 @@
     optionsToMarkdown = { 
       pkgs, 
       optionsJSON, 
-      includePrefixes ? [ "" ], # Defaults to everything
-      excludePrefixes ? [ ]      # Defaults to nothing
+      includePrefixes ? [ "" ],
+      excludePrefixes ? [ ]
     }:
     pkgs.runCommand "options.md" { 
       nativeBuildInputs = [ pkgs.jq ]; 
-      # Convert lists to JSON strings for the shell command
       pJson = builtins.toJSON includePrefixes;
       eJson = builtins.toJSON excludePrefixes;
     } ''
@@ -18,17 +17,16 @@
         --argjson exclusions "$eJson" \
         '
         to_entries
-        
-        # Filter 1: Include if key starts with ANY prefix in the list
-        | map(select(.key as $k | 
-            if ($prefixes | length == 0) then true 
-            else ($prefixes | any($k | startswith(.))) end
-          ))
-        
-        # Filter 2: Exclude if key starts with ANY prefix in the list
-        | map(select(.key as $k | 
-            if ($exclusions | length == 0) then true 
-            else ($exclusions | any($k | startswith(.)) | not) end
+        # 1. Alphabetical Sort
+        | sort_by(.key)
+
+        # 2. Filter: Use a single select that handles both include and exclude
+        | map(select(.key as $k |
+            # Check if it matches any included prefix
+            ( $prefixes | length == 0 or any(. as $p | $k | startswith($p)) )
+            and
+            # Check if it matches NONE of the excluded prefixes
+            ( $exclusions | all(. as $e | $k | startswith($e) | not) )
           ))
         
         | .[]
