@@ -21,20 +21,23 @@
 
         transformOptions = opts:
           lib.mapAttrs (_: opt:
-            let
-              rev = inputs.self.rev or "main";
+            if opt ? declarations then
+              let
+                rev = inputs.self.rev or "main";
 
-              toLink = decl:
-                let
-                  cleaned = lib.removePrefix "/nix/store/" decl;
-                  parts = lib.splitString "/" cleaned;
-                  relPath = lib.concatStringsSep "/" (lib.drop 1 parts);
-                in
-                  "[${relPath}](https://github.com/you/xalaynix/blob/${rev}/${relPath})";
-            in
-              opt // {
-                declarations = map toLink opt.declarations;
-              }
+                toLink = decl:
+                  let
+                    cleaned = lib.removePrefix "/nix/store/" decl;
+                    parts = lib.splitString "/" cleaned;
+                    relPath = lib.concatStringsSep "/" (lib.drop 1 parts);
+                  in
+                    "[${relPath}](https://github.com/you/xalaynix/blob/${rev}/${relPath})";
+              in
+                opt // {
+                  declarations = map toLink opt.declarations;
+                }
+            else
+              opt
           ) opts;
 
 
