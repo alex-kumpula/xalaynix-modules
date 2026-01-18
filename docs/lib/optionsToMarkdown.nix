@@ -4,13 +4,14 @@
     optionsToMarkdown = { 
       pkgs, 
       optionsJSON, 
-      includePrefixes ? [ "" ],
-      excludePrefixes ? [ ] # Now a list; defaults to empty (exclude nothing)
+      includePrefixes ? [ "" ], # Default to everything
+      excludePrefixes ? [ ]      # Default to nothing
     }:
     pkgs.runCommand "options.md" { 
       nativeBuildInputs = [ pkgs.jq ]; 
-      # Convert Nix lists to JSON strings for jq
-      prefixesJSON = builtins.toJSON includePrefixes;
+      # Safety: if includePrefixes is [], jq any() will fail. 
+      # We ensure it is at least [ "" ] if empty.
+      prefixesJSON = builtins.toJSON (if includePrefixes == [] then [ "" ] else includePrefixes);
       exclusionsJSON = builtins.toJSON excludePrefixes;
     } ''
       jq -r \
@@ -18,10 +19,10 @@
         --argjson exclusions "$exclusionsJSON" \
         '
         to_entries
-        # Filter 1: Keep if the KEY starts with any of the prefixes
-        | map(select(.key as $k | $prefixes | any(. == "" or ($k | startswith(.)))))
+        # 1. Inclusion Filter: Keep if key starts with ANY prefix
+        | map(select(.key as $k | $prefixes | any($k | startswith(.))))
         
-        # Filter 2: Drop if the KEY starts with any of the exclusions
+        # 2. Exclusion Filter: Keep ONLY if key starts with NONE of the exclusions
         | map(select(.key as $k | $exclusions | all($k | startswith(.) | not)))
         
         | .[]
