@@ -33,7 +33,7 @@
         cp book.toml build/
         cp -r src/* build/src/ || true
 
-        cp ${optionsJSON}/ build/src/options.json
+        cp ${optionsJSON} $out/options.json
 
         # cp ${"optionsMarkdown"} build/src/options.md
         # cd build
