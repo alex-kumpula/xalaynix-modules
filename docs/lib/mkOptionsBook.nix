@@ -12,27 +12,12 @@
     src ? ./. 
   }:
   let
-    rawOptionsJSON = inputs.self.lib.mkOptionsJSON {
-      inherit pkgs module;
+    # Use the new mkOptionsMd function to get the complete .md file
+    optionsMarkdown = inputs.self.lib.mkOptionsMd {
+      inherit pkgs lib module flakeRoot githubInfo includePrefixes excludePrefixes;
     };
 
-    linkedJson = inputs.self.lib.mapOptionsToGithub {
-      inherit pkgs flakeRoot githubInfo;
-      optionsJSON = rawOptionsJSON;
-    };
-
-    filteredJson = inputs.self.lib.filterOptionsJSON {
-      inherit pkgs includePrefixes excludePrefixes;
-      optionsJSON = linkedJson;
-    };
-
-    optionsMarkdown = inputs.self.lib.optionsToMarkdown {
-      inherit pkgs;
-      optionsJSON = filteredJson;
-    };
-
-    # Capture version info
-    # shortRev will be the git hash, or "dirty" if uncommitted
+    # Capture version for the index.md replacement
     version = if (flakeRoot ? shortRev) then flakeRoot.shortRev else "dirty";
   in
   pkgs.stdenv.mkDerivation {
@@ -44,14 +29,14 @@
       mkdir -p build/src
       mkdir -p $out
 
-      # Copy existing book source
+      # Copy existing book source (SUMMARY.md, index.md, book.toml, etc.)
       cp -r $src/* build/ || true
       chmod -R +w build
 
-      # Inject the generated options
+      # Inject the pre-processed markdown file into the mdbook source
       cp ${optionsMarkdown} build/src/options.md
 
-      # Update Version placeholders in index.md
+      # Update Version placeholders in the introduction page
       if [ -f build/src/index.md ]; then
         substituteInPlace build/src/index.md \
           --replace "{{VERSION}}" "${version}"
