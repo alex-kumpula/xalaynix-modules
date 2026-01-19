@@ -14,7 +14,7 @@
   let
     # Use the new mkOptionsMd function to get the complete .md file
     optionsMarkdown = inputs.self.lib.mkOptionsMd {
-      inherit pkgs lib module flakeRoot githubInfo includePrefixes excludePrefixes;
+      inherit pkgs module flakeRoot githubInfo includePrefixes excludePrefixes;
     };
 
     # Capture version for the index.md replacement
