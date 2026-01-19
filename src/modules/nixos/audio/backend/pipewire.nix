@@ -1,9 +1,12 @@
 { self, lib, ... }:
 {
   flake.modules.nixos.xalaynix = 
-  { config, lib, ... }: 
+  { config, lib, ... }:
+  let
+    cfg = config.xalaynix.audio;
+  in
   {
-    config = lib.mkIf (config.xalaynix.audio.backend == "pipewire") {
+    config = lib.mkIf (cfg.enable && cfg.backend == "pipewire") {
       services.pulseaudio.enable = lib.mkDefault false;
       security.rtkit.enable      = lib.mkDefault true;
       
