@@ -1,29 +1,8 @@
-{ inputs, ... }:
+{ self, lib, ... }:
 {
-  flake.modules.generic.xalaynix = 
-  { lib, ... }: 
+  flake.modules.nixos.xalaynix = 
+  { config, lib, ... }: 
   {
-    options.xalaynix = lib.mkOption {
-      type = lib.types.submodule {
-        options = { };
-      }; 
-      
-      description = ''
-        Options for the xalaynix module and its sub-modules.
-      '';
-      default = {};
-    };
-  };
-
-  flake.modules.nixos.xalaynix = {
-    imports = [
-      inputs.self.modules.generic.xalaynix
-    ];
-  };
-
-  flake.modules.homeManager.xalaynix = {
-    imports = [
-      inputs.self.modules.generic.xalaynix
-    ];
+    
   };
 }
