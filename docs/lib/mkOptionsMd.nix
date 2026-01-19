@@ -1,6 +1,6 @@
 { inputs, ... }:
 {
-  flake.lib.mkOptionsBook = { 
+  flake.lib.mkOptionsMd = { 
     pkgs, 
     module, 
     flakeRoot, 
