@@ -56,8 +56,9 @@
         cp -r $src/* build/ || true
         chmod -R +w build
 
-        # Inject the pre-processed markdown file into the mdbook source
-        cp ${optionsMdHomeManager} build/src/options.md
+        # Inject the pre-processed markdown files into the mdbook source
+        cp ${optionsMdNixos} build/src/optionsNixos.md
+        cp ${optionsMdHomeManager} build/src/optionsHomeManager.md
 
         # Update Version placeholders in the introduction page
         if [ -f build/src/index.md ]; then

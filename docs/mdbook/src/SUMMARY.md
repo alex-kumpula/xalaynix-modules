@@ -2,4 +2,5 @@
 
 [Introduction](index.md)
 ---
-[Full Options Reference](options.md)
+[NixOS Options](optionsNixos.md)
+[Home Manager Options](optionsHomeManager.md)
