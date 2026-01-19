@@ -2,8 +2,11 @@
 {
   flake.modules.nixos.xalaynix = 
   { config, lib, ... }: 
+  let 
+    cfg = config.xalaynix.boot;
+  in 
   {
-    config = lib.mkIf (config.xalaynix.boot.loader == "grub-minimal") {
+    config = lib.mkIf (cfg.enable && cfg.loader == "grub-minimal") {
       boot.loader.grub.enable = true;
 
       boot.loader.grub.device                = lib.mkDefault config.xalaynix.boot.bootDevice;
