@@ -3,15 +3,10 @@
   flake.modules.generic.xalaynix = 
   { lib, ... }: 
   {
-    options.xalaynix = lib.mkOption {
-      type = lib.types.submodule {
-        options = { };
-      }; 
-      
-      description = ''
-        Options for the xalaynix module and its sub-modules.
-      '';
-      default = {};
+    options.xalaynix.enable = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = "Enable Xalaynix configuration.";
     };
   };
 

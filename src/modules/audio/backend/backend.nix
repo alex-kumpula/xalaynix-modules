@@ -4,13 +4,14 @@
   { config, lib, ... }: 
   {
     options.xalaynix.audio.backend = lib.mkOption {
-      type = lib.types.enum [ "pipewire" "pulseaudio" ];
+      type = lib.types.enum [ "none" "pipewire" "pulseaudio" ];
       description = ''
-        The audio backend to use. 
+        The audio backend to use.
+        "none" does nothing.
         "pipewire" enables PipeWire as the audio server.
         "pulseaudio" enables PulseAudio as the audio server.
       '';
-      default = "pipewire";
+      default = "none";
     };
   };
 }
