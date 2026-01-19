@@ -33,11 +33,13 @@
     excludePrefixes = [ "_module" ];
 
     optionsMdNixos = inputs.self.lib.mkOptionsMd {
-      inherit pkgs moduleNixos flakeRoot githubInfo includePrefixes excludePrefixes;
+      inherit pkgs flakeRoot githubInfo includePrefixes excludePrefixes;
+      module = moduleNixos;
     };
 
     optionsMdHomeManager = inputs.self.lib.mkOptionsMd {
-      inherit pkgs moduleHomeManager flakeRoot githubInfo includePrefixes excludePrefixes;
+      inherit pkgs flakeRoot githubInfo includePrefixes excludePrefixes;
+      module = moduleHomeManager;
     };
   in
   {
