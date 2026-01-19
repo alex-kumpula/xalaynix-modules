@@ -1,7 +1,7 @@
-{ inputs, ... }:
+{ ... }:
 {
   flake.modules.nixos.xalaynix = 
-  { options, config, lib, ... }: 
+  { lib, ... }: 
   {
     options.xalaynix.boot.bootDevice = lib.mkOption {
       type = lib.types.str;
@@ -10,6 +10,5 @@
         Example: "/dev/vda"
       '';
     };
-
   };
 }
