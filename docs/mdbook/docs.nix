@@ -15,9 +15,16 @@
 
     src = ./.;
 
-    module = lib.evalModules {
+    moduleNixos = lib.evalModules {
       modules = [ 
         inputs.self.modules.nixos.xalaynix 
+        { _module.check = false; } 
+      ];
+    };
+
+    moduleHomeManager = lib.evalModules {
+      modules = [ 
+        inputs.self.modules.homeManager.xalaynix 
         { _module.check = false; } 
       ];
     };
@@ -25,8 +32,12 @@
     includePrefixes = [ "xalaynix" ];
     excludePrefixes = [ "_module" ];
 
-    optionsMarkdown = inputs.self.lib.mkOptionsMd {
-      inherit pkgs module flakeRoot githubInfo includePrefixes excludePrefixes;
+    optionsMdNixos = inputs.self.lib.mkOptionsMd {
+      inherit pkgs moduleNixos flakeRoot githubInfo includePrefixes excludePrefixes;
+    };
+
+    optionsMdHomeManager = inputs.self.lib.mkOptionsMd {
+      inherit pkgs moduleHomeManager flakeRoot githubInfo includePrefixes excludePrefixes;
     };
   in
   {
@@ -44,7 +55,7 @@
         chmod -R +w build
 
         # Inject the pre-processed markdown file into the mdbook source
-        cp ${optionsMarkdown} build/src/options.md
+        cp ${optionsMdHomeManager} build/src/options.md
 
         # Update Version placeholders in the introduction page
         if [ -f build/src/index.md ]; then
