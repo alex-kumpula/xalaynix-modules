@@ -12,7 +12,7 @@
     src ? ./. 
   }:
   let
-    # Use the new mkOptionsMd function to get the complete .md file
+    # Use the mkOptionsMd function to get the complete .md file
     optionsMarkdown = inputs.self.lib.mkOptionsMd {
       inherit pkgs module flakeRoot githubInfo includePrefixes excludePrefixes;
     };

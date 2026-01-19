@@ -1,28 +1,90 @@
 { inputs, ... }:
 {
-  perSystem = { pkgs, lib, ... }: {
-    packages.docs = inputs.self.lib.mkOptionsBook {
-      inherit pkgs lib;
-      
-      flakeRoot = inputs.self;
+  perSystem = { pkgs, lib, ... }: 
+  let 
+    bookName = "xalaynix-modules-docs";
 
-      src = ./.; # Path to the folder containing the mdBook source files.
+    flakeRoot = inputs.self;
+    version = if (flakeRoot ? shortRev) then flakeRoot.shortRev else "dirty";
 
-      module = lib.evalModules {
-        modules = [ 
-          inputs.self.modules.nixos.xalaynix 
-          { _module.check = false; } 
-        ];
-      };
+    githubInfo = { 
+      user = "alex-kumpula"; 
+      repo = "xalaynix-modules"; 
+      branch = "main"; 
+    };
 
-      githubInfo = { 
-        user = "alex-kumpula"; 
-        repo = "xalaynix-modules"; 
-        branch = "main"; 
-      };
+    src = ./.;
 
-      includePrefixes = [ "xalaynix" ];
-      excludePrefixes = [ "_module" ];
+    module = lib.evalModules {
+      modules = [ 
+        inputs.self.modules.nixos.xalaynix 
+        { _module.check = false; } 
+      ];
+    };
+
+    includePrefixes = [ "xalaynix" ];
+    excludePrefixes = [ "_module" ];
+
+    optionsMarkdown = inputs.self.lib.mkOptionsMd {
+      inherit pkgs module flakeRoot githubInfo includePrefixes excludePrefixes;
+    };
+  in
+  {
+    packages.docs = pkgs.stdenv.mkDerivation {
+      name = bookName;
+      inherit src;
+      nativeBuildInputs = [ pkgs.mdbook ]; 
+
+      buildPhase = ''
+        mkdir -p build/src
+        mkdir -p $out
+
+        # Copy existing book source (SUMMARY.md, index.md, book.toml, etc.)
+        cp -r $src/* build/ || true
+        chmod -R +w build
+
+        # Inject the pre-processed markdown file into the mdbook source
+        cp ${optionsMarkdown} build/src/options.md
+
+        # Update Version placeholders in the introduction page
+        if [ -f build/src/index.md ]; then
+          substituteInPlace build/src/index.md \
+            --replace "{{VERSION}}" "${version}"
+        fi
+        
+        cd build
+        mdbook build -d $out
+      '';
+
+      dontInstall = true;
     };
   };
 }
+
+
+
+
+  #   packages.docs = inputs.self.lib.mkOptionsBook {
+  #     inherit pkgs lib;
+
+  #     flakeRoot = inputs.self;
+
+  #     src = ./.; # Path to the folder containing the mdBook source files.
+
+  #     module = lib.evalModules {
+  #       modules = [ 
+  #         inputs.self.modules.nixos.xalaynix 
+  #         { _module.check = false; } 
+  #       ];
+  #     };
+
+  #     githubInfo = { 
+  #       user = "alex-kumpula"; 
+  #       repo = "xalaynix-modules"; 
+  #       branch = "main"; 
+  #     };
+
+  #     includePrefixes = [ "xalaynix" ];
+  #     excludePrefixes = [ "_module" ];
+  #   };
+  # };
