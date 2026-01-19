@@ -6,8 +6,10 @@
     cfg = config.xalaynix;
   in 
   {
+    
+
     boot.loader.grub.enable = true;
-    boot.loader.grub.device = cfg.bootDevice;
+    boot.loader.grub.device = cfg.boot.bootDevice;
     boot.loader.grub.useOSProber = true;
 
     boot.loader.grub.efiSupport = true;
