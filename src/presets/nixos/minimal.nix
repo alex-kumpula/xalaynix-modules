@@ -16,6 +16,9 @@
       xalaynix.boot.loader = lib.mkDefault "grub-minimal";
       xalaynix.audio.backend = lib.mkDefault "pipewire";
 
+      # Important programs
+      programs.git.enable = lib.mkDefault true;
+
       # Printing
       services.printing.enable = lib.mkDefault true;
 
