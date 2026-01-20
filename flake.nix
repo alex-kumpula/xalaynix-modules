@@ -26,6 +26,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:nix-community/disko";
     };
+    dms = {
+      inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:AvengeMedia/DankMaterialShell/stable";
+    };
     flake-file.url = "github:vic/flake-file";
     flake-parts = {
       inputs.nixpkgs-lib.follows = "nixpkgs-lib";
