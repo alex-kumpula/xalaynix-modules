@@ -6,7 +6,15 @@
     cfg = config.xalaynix.desktop;
   in
   {
-    config = lib.mkIf (cfg == "gnome-minimal") {
+    options.xalaynix.desktop.gnome-minimal = lib.mkOption {
+      type = lib.types.bool;
+      description = ''
+        Whether to enable a minimal GNOME desktop environment.
+      '';
+      default = false;
+    };
+
+    config = lib.mkIf (cfg.enable && cfg.gnome-minimal) {
       services.desktopManager.gnome.enable = lib.mkDefault true;
       services.xserver.enable = lib.mkDefault true;
     };

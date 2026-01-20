@@ -3,18 +3,16 @@
   flake.modules.nixos.xalaynix = 
   { config, lib, ... }: 
   {
-    options.xalaynix.desktop = lib.mkOption {
-      type = lib.types.enum [ "none" "gnome-minimal" ];
+    options.xalaynix.desktop.enable = lib.mkOption {
+      type = lib.types.bool;
       description = ''
-        The desktop environment to use. 
-        "gnome-minimal" enables a minimal GNOME desktop environment.
-        "none" does nothing.
+        Whether to enable desktop support.
       '';
-      default = "none";
+      default = true;
     };
 
     config = lib.mkIf (!config.xalaynix.enable) {
-      xalaynix.desktop = lib.mkForce "none";
+      xalaynix.desktop.enable = lib.mkForce false;
     };
   };
 }

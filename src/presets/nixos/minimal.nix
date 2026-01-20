@@ -8,7 +8,10 @@
   {
     config = lib.mkIf (cfg == "minimal") {
       # Xalaynix modules
-      xalaynix.desktop = lib.mkDefault "gnome-minimal";
+      xalaynix.desktop = {
+        enable = lib.mkDefault true;
+        gnome-minimal = lib.mkDefault true;
+      };
       xalaynix.displayManager = lib.mkDefault "gdm-minimal";
       xalaynix.boot.loader = lib.mkDefault "grub-minimal";
       xalaynix.audio.backend = lib.mkDefault "pipewire";
