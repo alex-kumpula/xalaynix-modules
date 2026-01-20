@@ -10,5 +10,9 @@
       '';
       default = true;
     };
+
+    config = lib.mkIf (!config.xalaynix.enable) {
+      xalaynix.boot.enable = lib.mkForce false;
+    };
   };
 }

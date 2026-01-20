@@ -13,5 +13,9 @@
       '';
       default = "none";
     };
+
+    config = lib.mkIf (!config.xalaynix.audio.enable) {
+      xalaynix.audio.backend = lib.mkForce "none";
+    };
   };
 }
