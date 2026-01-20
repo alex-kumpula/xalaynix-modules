@@ -6,7 +6,8 @@
     options.xalaynix.presets = lib.mkOption {
       type = lib.types.enum [ "none" "minimal" ];
       description = ''
-        "none" applies no presets. \n
+        "none" applies no presets.
+        
         "minimal" applies a minimal set of presets suitable for lightweight systems.
       '';
       default = "none";
