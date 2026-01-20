@@ -3,7 +3,7 @@
   flake.modules.nixos.xalaynix = 
   { config, lib, ... }:
   let
-    cfg = config.xalaynix.presets;
+    cfg = config.xalaynix.preset;
   in
   {
     config = lib.mkIf (cfg == "minimal") {
