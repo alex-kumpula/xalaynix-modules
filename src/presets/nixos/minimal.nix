@@ -10,7 +10,7 @@
       # Xalaynix modules
       xalaynix.desktop = {
         enable = lib.mkDefault true;
-        gnome-minimal = lib.mkDefault true;
+        gnome-minimal.enable = lib.mkDefault true;
       };
       xalaynix.displayManager = lib.mkDefault "gdm-minimal";
       xalaynix.boot.loader = lib.mkDefault "grub-minimal";
