@@ -3,13 +3,13 @@
   flake.modules.homeManager.xalaynix = 
   { pkgs, config, lib, ... }:
   {
-    options.xalaynix.shell.yazi = lib.mkOption {
+    options.xalaynix.shell.yazi.enable = lib.mkOption {
       type = lib.types.bool;
       description = "Whether or not to enable Yazi.";
       default = false;
     };
 
-    config = lib.mkIf config.xalaynix.shell.yazi {
+    config = lib.mkIf config.xalaynix.shell.yazi.enable {
       programs.yazi = {
         enable = true;
         enableBashIntegration = true;
