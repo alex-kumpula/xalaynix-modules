@@ -19,6 +19,7 @@
       modules = [ 
         inputs.self.modules.nixos.xalaynix 
         { _module.check = false; }
+        { _module.args.pkgs = pkgs; }
       ];
     };
 
