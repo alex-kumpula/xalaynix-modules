@@ -6,7 +6,7 @@
     options.xalaynix.shell.yazi = lib.mkOption {
       type = lib.types.bool;
       description = "Whether or not to enable Yazi.";
-      default = { };
+      default = false;
     };
 
     config = lib.mkIf config.xalaynix.shell.yazi {
