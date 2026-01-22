@@ -13,12 +13,5 @@
       '';
       default = false;
     };
-
-    config = lib.mkIf (cfg.enable && cfg.dms-niri.enable) {
-      
-
-
-      
-    };
   };
 }
