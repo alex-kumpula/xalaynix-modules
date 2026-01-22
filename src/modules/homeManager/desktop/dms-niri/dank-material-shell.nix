@@ -11,7 +11,7 @@
     ];
 
     config = lib.mkIf (cfg.enable && cfg.dms-niri.enable) {
-      programs.dankMaterialShell = {
+      programs.dank-material-shell = {
         enable = true;
         enableSystemMonitoring = true;
         dgop.package = inputs.dgop.packages.${pkgs.system}.default;
