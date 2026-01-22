@@ -8,7 +8,10 @@
   {
     config = lib.mkIf (cfg == "minimal") {
       # Xalaynix modules
-      
+      xalaynix = {
+        desktop.niri-minimal.enable = lib.mkDefault true;
+        shell.yazi.enable = lib.mkDefault true;
+      };
 
       # Enable home-manager to install and manage itself
       programs.home-manager.enable = lib.mkDefault true;
