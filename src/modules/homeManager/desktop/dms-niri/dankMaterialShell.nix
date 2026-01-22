@@ -13,6 +13,8 @@
     config = lib.mkIf (cfg.enable && cfg.dms-niri.enable) {
       programs.dankMaterialShell = {
         enable = true;
+        enableSystemMonitoring = true;
+        dgop.package = inputs.dgop.packages.${pkgs.system}.default;
       };
 
       home.file.".config/niri/config.kdl" = {
