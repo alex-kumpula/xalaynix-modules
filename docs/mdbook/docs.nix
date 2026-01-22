@@ -18,7 +18,7 @@
     moduleNixos = lib.evalModules {
       modules = [ 
         inputs.self.modules.nixos.xalaynix 
-        { _module.check = false; } 
+        { _module.check = false; }
       ];
     };
 
@@ -26,6 +26,7 @@
       modules = [ 
         inputs.self.modules.homeManager.xalaynix 
         { _module.check = false; } 
+        { _module.args.pkgs = pkgs; }
       ];
     };
 
