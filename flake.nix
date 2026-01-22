@@ -22,6 +22,10 @@
     );
 
   inputs = {
+    dgop = {
+      inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:AvengeMedia/dgop";
+    };
     disko = {
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:nix-community/disko";

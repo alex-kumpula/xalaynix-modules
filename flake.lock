@@ -1,5 +1,25 @@
 {
   "nodes": {
+    "dgop": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1768856812,
+        "narHash": "sha256-s6iEuz/6JGZoa9Txsxyjlq1tR2lHarmLGBX8ptrTliU=",
+        "owner": "AvengeMedia",
+        "repo": "dgop",
+        "rev": "0afebac7527826b8f565ed17343a7f11e00fa0dc",
+        "type": "github"
+      },
+      "original": {
+        "owner": "AvengeMedia",
+        "repo": "dgop",
+        "type": "github"
+      }
+    },
     "disko": {
       "inputs": {
         "nixpkgs": [
@@ -153,6 +173,7 @@
     },
     "root": {
       "inputs": {
+        "dgop": "dgop",
         "disko": "disko",
         "dms": "dms",
         "flake-file": "flake-file",
