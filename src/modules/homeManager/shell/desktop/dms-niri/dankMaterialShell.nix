@@ -6,11 +6,11 @@
     cfg = config.xalaynix.desktop;
   in
   {
-    config = lib.mkIf (cfg.enable && cfg.dms-niri.enable) {
-      imports = [
-        inputs.dms.homeModules.dankMaterialShell.default
-      ];
+    imports = [
+      inputs.dms.homeModules.dankMaterialShell.default
+    ];
 
+    config = lib.mkIf (cfg.enable && cfg.dms-niri.enable) {
       programs.dankMaterialShell = {
         enable = true;
       };
