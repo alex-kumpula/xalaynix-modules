@@ -1,7 +1,7 @@
-{ self, lib, ... }:
+{ inputs, ... }:
 {
-  flake.modules.nixos.xalaynix = 
-  { config, lib, ... }:
+  flake.modules.nixos.xalaynix =
+  { config, lib, pkgs, ... }:
   let
     cfg = config.xalaynix.desktop;
   in
@@ -15,7 +15,10 @@
     };
 
     config = lib.mkIf (cfg.enable && cfg.niri.enable) {
-      programs.niri.enable = lib.mkDefault true;
+      programs.niri = {
+        enable = lib.mkDefault true;
+        package = inputs.nixpkgs-unstable.legacyPackages.${pkgs.system}.niri;
+      };
       services.xserver.enable = lib.mkDefault true;
     };
   };
