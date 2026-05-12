@@ -9,7 +9,6 @@
     config = lib.mkIf (cfg == "minimal") {
       # Xalaynix modules
       xalaynix = {
-        desktop.dms-niri.enable = lib.mkDefault true;
         shell.yazi.enable = lib.mkDefault true;
       };
 
